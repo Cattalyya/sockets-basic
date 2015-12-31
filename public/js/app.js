@@ -3,12 +3,17 @@ var room = getQueryVariable('room');
 var socket = io();
 
 console.log(name + ' wants to join'+ room);
+jQuery('.room-title').text(room); //.html 
 
 /////////// Connection ///////////
 socket.on('connect',function (){
 // successfully connected on front end part
 // console.log to the JavaScript Console in Developer tools
 	console.log('Connected to socket.io server');
+	socket.emit('joinRoom', {
+		name: name,
+		room: room
+	});
 });
 
 
