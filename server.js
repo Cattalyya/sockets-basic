@@ -7,7 +7,34 @@ var moment = require('moment');
 
 app.use(express.static(__dirname+'/public'));
 
-var clientInfo = {};
+var clientInfo = {}; // store {socket.id: {name:, room:} } of all users
+
+function sendCurrentUsers (socket) {
+	// pass socket, instead of id, in to find what room the user in
+	var info = clientInfo[socket.id];
+	var users = [];
+
+	if (typeof info === 'undefined') {
+		return;
+		// to stop searching users if the room does not exist
+	}
+
+	Object.keys(clientInfo).forEach(function (socketId) {
+		var userInfo = clientInfo[socketId];
+
+		if(info.room === userInfo.room) {
+			users.push(userInfo.name);
+		}
+
+	}); // Object.keys(obj) return all attributes of that obj 
+
+	socket.emit('message', {
+		name: 'System',
+		text: 'Current Users: '+ users.join(', '),
+		timestamp: moment.valueOf()
+	})
+
+}
 
 io.on('connection', function (socket) {
 	console.log('User connected via socket.io');
@@ -39,8 +66,14 @@ io.on('connection', function (socket) {
 		console.log('Message received: '+message.text);
 		// io.emit = send to everybody including sender
 		// socket.broadcast.emit = send to all other people
-		message.timestamp = moment().valueOf();
-		io.to(clientInfo[socket.id].room).emit('message', message);
+		if (message.text === '@currentUsers') {
+			// cmd to see all current users in that chat room
+			sendCurrentUsers(socket);
+		} else {
+			message.timestamp = moment().valueOf();
+			io.to(clientInfo[socket.id].room).emit('message', message);
+		}
+
 	});
 
 	socket.emit('message', {
