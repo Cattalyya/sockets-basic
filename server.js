@@ -14,10 +14,11 @@ io.on('connection', function (socket) {
 		console.log('Message received: '+message.text);
 		// io.emit = send to everybody including sender
 		// socket.broadcast.emit = send to all other people
-		socket.broadcast.emit('message', message);
+		io.emit('message', message);
 	});
 
 	socket.emit('message', {
+		name: 'System',
 		text: 'Welcome to the chat application',
 		timestamp: moment().valueOf()
 	}); // emit event (type, piece of info to send)
