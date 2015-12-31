@@ -10,9 +10,10 @@ socket.on('connect',function (){
 
 /////////// Messages come in ///////////
 socket.on('message', function (message) {
+	var momentTimestamp = moment.utc(message.timestamp);
 	console.log('New message: ');
 	console.log(message.text);
-	jQuery('.messages').append('<p>'+ message.text +'</p>') // append = add content inside that tag
+	jQuery('.messages').append('<p><strong>'+ momentTimestamp.format('h:mm a')+': '+'</strong>'+message.text +'</p>'); // append = add content inside that tag
 });
 
 
